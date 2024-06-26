@@ -1,5 +1,5 @@
 # Use the official PHP image with Apache, based on Alpine
-FROM php:8.1-apache-alpine
+FROM php:8.1-apache
 # Install necessary dependencies and PHP extensions
 RUN apk add --no-cache \
     bash \
