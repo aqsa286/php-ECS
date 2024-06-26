@@ -1,18 +1,21 @@
 # Use the official PHP image with Apache
 FROM php:8.1-apache
 
-# Install necessary dependencies and PHP extensions using apt-get (for Debian-based images)
-RUN apt-get update && apt-get install -y \
-    bash \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    libwebp-dev \
-    zlib1g-dev \
-    libxpm-dev \
-    libfreetype6-dev \
-    libonig-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+# Install necessary system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        bash \
+        libpng-dev \
+        libjpeg-dev \
+        libwebp-dev \
+        zlib1g-dev \
+        libxpm-dev \
+        libfreetype6-dev \
+        libonig-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configure GD extension for PHP
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) gd mysqli pdo pdo_mysql mbstring
 
 # Copy the current directory contents into the container at /var/www/html
