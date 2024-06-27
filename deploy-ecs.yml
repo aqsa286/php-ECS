@@ -10,7 +10,7 @@
     ecs_cluster_name: "test-cluster"
     ecs_task_definition_name: "ansible-task-definition"
     ecs_service_name: "ansible-ecs-service"
-    ecs_container_name: "ansible_nginx"
+    ecs_container_name: "php-cont"
     ecs_container_image: "{{ ecs_container_image }}"
     task_definition: null
   tasks:
