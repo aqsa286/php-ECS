@@ -5,11 +5,10 @@
   vars:
     aws_region: "us-east-1"
     ecs_cluster_name: "DevCluster-1"
-    ecs_task_definition_name: "ansible-task-definition-test"
-    ecs_service_name: "ansible-ecs-service-test"
-    ecs_container_name: "ansi-php"
+    ecs_task_definition_name: "ansible-task-definition"
+    ecs_service_name: "ansible-ecs-service"
+    ecs_container_name: "ansible_php"
     ecs_container_image: "php:latest"
-    task_definition: null
   tasks:
     - name: Ensure boto3 is installed
       pip:
@@ -60,16 +59,6 @@
         deployment_configuration:
           maximum_percent: 200
           minimum_healthy_percent: 50
-        network_configuration:
-          awsvpc_configuration:
-            subnets:
-              - "subnet-095be323bd97dc9a4"
-              - "subnet-0c8e1eaaaff0a0726"
-              - "subnet-0e3db30d9fdcb6414"
-              - "subnet-04b85618616f2da9d"
-              - "subnet-0925766f7ff391b44"
-            security_groups:
-              - "sg-0a85d937517e6a7b1"
         state: present
       register: service_result
 
