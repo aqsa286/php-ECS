@@ -1,15 +1,16 @@
 ---
 - name: Deploy ECS Task and Service with EC2
   hosts: localhost
-  gather_facts: False
+  gather_facts: no
+  connection: local
   vars:
-    aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
-    aws_secret_key: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
     aws_region: "us-east-1"
-    ecs_cluster_name: "DevCluster-1"
+    ecs_cluster_name: "test-cluster"
     ecs_task_definition_name: "ansible-task-definition"
     ecs_service_name: "ansible-ecs-service"
-    ecs_container_name: "php-cont"
+    ecs_container_name: "ansible_nginx"
     ecs_container_image: "{{ ecs_container_image }}"
     task_definition: null
   tasks:
@@ -28,7 +29,6 @@
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
         execution_role_arn: "arn:aws:iam::736116236436:role/ecsTaskExecutionRole"
-       ## task_role_arn: "arn:aws:iam::736116236436:role/ecsTaskRole"
         containers:
           - name: "{{ ecs_container_name }}"
             image: "{{ ecs_container_image }}"
