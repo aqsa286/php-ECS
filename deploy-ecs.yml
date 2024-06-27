@@ -41,19 +41,6 @@
             memoryReservation: 100
             memory: 250
             cpu: 100
-        requires_compatibilities:
-          - "FARGATE"
-        network_configuration:
-          awsvpc_configuration:
-            subnets:
-              - "subnet-095be323bd97dc9a4"
-              - "subnet-0c8e1eaaaff0a0726"
-              - "subnet-0e3db30d9fdcb6414"
-              - "subnet-04b85618616f2da9d"
-              - "subnet-0925766f7ff391b44"
-            security_groups:
-              - "sg-0a85d937517e6a7b1"
-            assign_public_ip: ENABLED
         state: present
       register: task_definition
 
