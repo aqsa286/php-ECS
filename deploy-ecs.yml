@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+    environment {
+        ECR_REPO = '736116236436.dkr.ecr.us-east-1.amazonaws.com' // ECR repository URL
+        AWS_REGION = 'us-east-1' // Correct AWS region
+    }
+    parameters {
+        string(name: 'ENVIRONMENT_NAME', defaultValue: 'dev', description: 'Environment name')
+        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Docker image tag')
+        string(name: 'ECR_URL', defaultValue: '736116236436.dkr.ecr.us-east-1.amazonaws.com', description: 'ECR repository URL')
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                deleteDir()
+                git credentialsId: 'YOUR_GITHUB_ACCESS', url: 'https://github.com/aqsa286/php-ECS.git', branch: 'dev'
+            }
+        }
+        stage('Create new ECR repository') {
+            environment {
+                AWS_DEFAULT_REGION = 'us-east-1'
+            }
+            steps {
+                script {
+                    try {
+                        sh "aws ecr create-repository --repository-name ${params.ENVIRONMENT_NAME}"
+                    } catch (Exception e) {
+                        echo "Repository ${params.ENVIRONMENT_NAME} already exists. Skipping repository creation."
+                    }
+                }
+            }
+        }
+        stage('Build and Push Docker Image') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${params.ECR_URL}"
+                    sh "docker build -t ${params.ECR_URL}/${params.ENVIRONMENT_NAME}:${params.DOCKER_TAG} ."
+                    sh "docker push ${params.ECR_URL}/${params.ENVIRONMENT_NAME}:${params.DOCKER_TAG}"
+                }
+            }
+        }
+        stage('Run Ansible Playbook') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    sh """
+                    ansible-playbook -i localhost, deploy-ecs.yml \
+                    --extra-vars "aws_access_key=${AWS_ACCESS_KEY_ID} aws_secret_key=${AWS_SECRET_ACCESS_KEY} ecs_container_image=${params.ECR_URL}/${params.ENVIRONMENT_NAME}:${params.DOCKER_TAG}"
+                    """
+                }
+            }
+        }
+    }
+}
+
