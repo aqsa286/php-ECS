@@ -3,36 +3,32 @@
   hosts: localhost
   gather_facts: False
   vars:
+    aws_access_key: "AWS_ACCESS_KEY_ID"
+    aws_secret_key: "AWS_SECRET_ACCESS_KEY"
     aws_region: "us-east-1"
     ecs_cluster_name: "DevCluster-1"
-    ecs_task_definition_name: "ansible-task-definition"
-    ecs_service_name: "ansible-ecs-service"
+    ecs_task_definition_name: "ecs-task-def"
+    ecs_service_name: "ecs-service"
     ecs_container_name: "ansible_php"
     ecs_container_image: "php:latest"
+    task_definition: null
   tasks:
-    - name: Ensure boto3 is installed
-      pip:
-        name: boto3
-        state: present
-    
-    - name: Ensure botocore is installed
-      pip:
-        name: botocore
-        state: present
-
     - name: Create ECS Cluster
-      ecs_cluster:
-        name: "{{ ecs_cluster_name }}"
-        region: "{{ aws_region }}"
-        state: present
+      command: "aws ecs create-cluster --cluster-name {{ ecs_cluster_name }}"
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+        AWS_DEFAULT_REGION: "{{ aws_region }}"
       ignore_errors: yes  # Ignore errors if the cluster already exists
-
     - name: Create ECS Task Definition
       ecs_taskdefinition:
         region: "{{ aws_region }}"
         family: "{{ ecs_task_definition_name }}"
         network_mode: awsvpc
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
         execution_role_arn: "arn:aws:iam::736116236436:role/ecsTaskExecutionRole"
+       ## task_role_arn: "arn:aws:iam::736116236436:role/ecsTaskRole"
         containers:
           - name: "{{ ecs_container_name }}"
             image: "{{ ecs_container_image }}"
@@ -43,11 +39,9 @@
             cpu: 100
         state: present
       register: task_definition
-
     - name: Register ECS Task Definition
       debug:
         var: task_definition
-
     - name: Create ECS Service
       ecs_service:
         region: "{{ aws_region }}"
@@ -56,18 +50,21 @@
         task_definition: "{{ ecs_task_definition_name }}"
         launch_type: EC2
         desired_count: 1  # Set the desired count to 1 to start one task
+        wait: yes
         deployment_configuration:
-          maximum_percent: 200
-          minimum_healthy_percent: 50
-        placement_strategy:
-          - type: "spread"
-            field: "attribute:ecs.availability-zone"
-        placement_constraints:
-          - type: "memberOf"
-            expression: "attribute:ecs.instance-type =~ t2.*"
+          maximum_percent: 150
+          minimum_healthy_percent: 100
+        network_configuration:
+          subnets:
+            - "subnet-095be323bd97dc9a4"
+            - "subnet-0c8e1eaaaff0a0726"
+            - "subnet-0e3db30d9fdcb6414"
+            - "subnet-04b85618616f2da9d"
+            - "subnet-0925766f7ff391b44"
+          security_groups:
+            - "sg-0a85d937517e6a7b1"
         state: present
       register: service_result
-
     - name: Register ECS Service
       debug:
         var: service_result
