@@ -2,7 +2,7 @@
 FROM php:7.4-apache
 
 # Copy the application source code to the container
-COPY src/ /var/www/html/
+COPY . /var/www/html/
 
 # Set file permissions
 RUN chown -R www-data:www-data /var/www/html \
