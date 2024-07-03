@@ -9,7 +9,7 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
 # Expose port 8081
-EXPOSE 8081
+EXPOSE 81
 
 # Start Apache in the foreground
 CMD ["apache2-foreground"]
