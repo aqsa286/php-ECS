@@ -73,7 +73,7 @@
             - "subnet-0925766f7ff391b44"
           security_groups:
             - "sg-0a85d937517e6a7b1"
-          assign_public_ip: "ENABLED"
+          assign_public_ip: true
         state: present
       register: service_result
 
