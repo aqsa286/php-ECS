@@ -4,7 +4,7 @@
   gather_facts: False
   vars:
     aws_region: "us-east-1"
-    ecs_cluster_name: "My-Cluster"
+    ecs_cluster_name: "My-Cluster1"
     ecs_task_definition_name: "task-defination-php"
     ecs_service_name: "php-ecs-service"
     ecs_container_name: "php-container"
