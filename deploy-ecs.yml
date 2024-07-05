@@ -4,7 +4,7 @@
   gather_facts: False
   vars:
     aws_region: "us-east-1"
-    ecs_cluster_name: "My-Cluster1"
+    ecs_cluster_name: "MyCluster-1"
     ecs_task_definition_name: "task-defination-ansible-p"
     ecs_service_name: "Service-php"
     ecs_container_name: "php-container"
